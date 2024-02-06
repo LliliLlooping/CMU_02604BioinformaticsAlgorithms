@@ -1,11 +1,12 @@
 import numpy as np
+from typing import List
 
 
 class Scoring:
     def __init__(self):
         self.alphabets = ['A', 'T', 'C', 'G']
 
-    def consensus_score(self, motifs):
+    def consensus_score(self, motifs: List[str]):
         consensusList = []
         for i in range(len(motifs[0])):
 

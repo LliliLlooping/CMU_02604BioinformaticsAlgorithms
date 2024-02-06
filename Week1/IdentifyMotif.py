@@ -7,7 +7,7 @@ class IdentifyMotif:
     def __init__(self):
         self.motif_search_tools = MotifSearchTools()
 
-    def profile_most_probable_kmer(self, text, k, profile):
+    def profile_most_probable_kmer(self, text: str, k: int, profile: List[Dict[str, float]]) -> str:
         """
             Identifies the most probable k-mer according to a given profile matrix.
 

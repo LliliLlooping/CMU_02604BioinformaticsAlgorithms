@@ -22,7 +22,7 @@ class MotifSearchTools:
 
         return prob
 
-    def random_initiate_motifs(self, dnas, k) -> List[str]:
+    def random_initiate_motifs(self, dnas: List[str], k: int) -> List[str]:
 
         # Generate a starting random posision for the motif in each ena
         indices = [np.random.randint(low=0, high=len(

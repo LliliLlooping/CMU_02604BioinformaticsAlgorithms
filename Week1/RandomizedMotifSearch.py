@@ -12,7 +12,7 @@ class RandomizedMotifSearch:
         self.identify_motif = IdentifyMotif()
         self.scoring = Scoring()
 
-    def randomized_motif_searches(self, dnas: str, k: int, t: int) -> List[str]:
+    def randomized_motif_searches(self, dnas: List[str], k: int, t: int) -> List[str]:
         """
 
         Args:
@@ -38,7 +38,7 @@ class RandomizedMotifSearch:
 
         return bestMotif
 
-    def _randomized_motif_search(self, dnas: str, k: int) -> (List[str], float):
+    def _randomized_motif_search(self, dnas: List[str], k: int) -> (List[str], float):
 
         # Initializes 'motifs', 'bestMotifs', and 'bestLoss'
         motifs = self.motif_search_tools.random_initiate_motifs(dnas, k)
