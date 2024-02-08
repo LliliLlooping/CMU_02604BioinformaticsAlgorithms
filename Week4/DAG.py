@@ -6,12 +6,12 @@ class DAG:
     def __init__(self, file_path='./input_DAG_LongestPath.txt'):
         
         # Initialize the DAG by reading the adjacency_list, start, and end
-        [self.s, self.t], self.adjacency_list = self._read_adjacency_list(file_path)
+        [self.s, self.t], self.adjacency_list = self._read_weighted_edges(file_path)
         
         # Find the topological sorting for this DAG
         self.topological_ordered_v = self.topological_sorting()
-    
-    def _read_adjacency_list(self, file_path: str) -> (List[int], Dict[int, List[Tuple[int, int]]]):
+            
+    def _read_weighted_edges(self, file_path: str) -> (List[int], Dict[int, List[Tuple[int, int]]]):
         
         # Read the input file
         with open(file_path, 'r') as file:
@@ -122,9 +122,22 @@ class DAG:
         longest_distance = distance[self.t]
         
         return longest_distance, longest_path
-        
+    
+    # def _read_edges(self, file_path: str) -> Dict[int, List[Tuple[int, int]]]:
+    #     with open(file_path, 'r') as file:
+    #         data = file.read().split('\n')
+    #     adjacency_list = {}
+    #     for line in data:
+    #         line_ = line.split(': ')
+    #         ori, des_list = int(line_[0]), line_[1].split(' ')
+    #         if ori not in adjacency_list:
+    #             adjacency_list[ori] = []
+    #         for des in des_list:
+    #             adjacency_list[ori].append((int(des), 1))
+    #     return adjacency_list
+    
     def test(self):
         longest_distance, longest_path = self.longest_path()
         assert longest_distance == 62
         assert longest_path == [0, 14, 29, 44]
-        print(longest_distance, longest_path)
+        # print(longest_distance, longest_path)
