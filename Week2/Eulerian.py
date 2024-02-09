@@ -8,6 +8,27 @@ class Eulerian:
     def __init__(self):
         self.adjacencyList = AdjacencyList()
 
+    def k_universal_cycle(self, k: int) -> List[int]:
+        """Solve the k-Universal Circular String Problem.
+
+            Input: An integer k.
+            Output: A k-universal circular string.
+        """
+
+        # Generate all possible binary k-mers as the patterns
+        patterns = ["{:0{width}b}".format(i, width=k) for i in range(2 ** k)]
+
+        # Construct De Bruijn Graph
+        adjacency_list = self.adjacencyList.construct_from_kmers(patterns)
+
+        # Find the Eulerian Cycle
+        path = self.find_eulerian_cycle(adjacency_list)
+
+        # Glue the path.
+        result = path[0] + ''.join([p[-1] for p in path[1:]])
+
+        return result
+
     def find_eulerian_path(self, adjacency_list: Dict[int, List[int]]) -> List[int]:
         """ Find the Eulerian Path in the graph.
             The graph is strongly connected, all nodes are balanced, except the starting and ending nodes.
@@ -151,21 +172,24 @@ class Eulerian:
             destinations = adjacency_list[cycle[-1]]
 
     def test(self):
-        # adjacency_list = {
-        #     0: [3],
-        #     1: [0],
-        #     2: [1, 6],
-        #     3: [2],
-        #     4: [2],
-        #     5: [4],
-        #     6: [5, 8],
-        #     7: [9],
-        #     8: [7],
-        #     9: [6]
-        # }
-        # cycle = self.find_eulerian_cycle(adjacency_list)
+        adjacency_list = {
+            0: [3],
+            1: [0],
+            2: [1, 6],
+            3: [2],
+            4: [2],
+            5: [4],
+            6: [5, 8],
+            7: [9],
+            8: [7],
+            9: [6]
+        }
+        cycle = self.find_eulerian_cycle(adjacency_list)
         # print(cycle)
 
         adjacency_list = self.adjacencyList._read_edges('./input_eulerian.txt')
         path = self.find_eulerian_path(adjacency_list)
-        print(path)
+        # print(path)
+
+        result = self.k_universal_cycle(3)
+        assert result == '0010111000' or result == '0010111000'
