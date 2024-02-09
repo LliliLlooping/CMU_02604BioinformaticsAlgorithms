@@ -8,7 +8,7 @@ class Eulerian:
     def __init__(self):
         self.adjacencyList = AdjacencyList()
 
-    def k_universal_cycle(self, k: int) -> List[int]:
+    def k_universal_cycle(self, k: int) -> str:
         """Solve the k-Universal Circular String Problem.
 
             Input: An integer k.
@@ -29,7 +29,7 @@ class Eulerian:
 
         return result
 
-    def find_eulerian_path(self, adjacency_list: Dict[int, List[int]]) -> List[int]:
+    def find_eulerian_path(self, adjacency_list: Dict[any, List[any]]) -> List[any]:
         """ Find the Eulerian Path in the graph.
             The graph is strongly connected, all nodes are balanced, except the starting and ending nodes.
 
@@ -57,7 +57,7 @@ class Eulerian:
 
         return eulerian_path
 
-    def _find_start_end_from_adjacency_list(self, adjacency_list: Dict[int, List[int]]) -> Tuple[int]:
+    def _find_start_end_from_adjacency_list(self, adjacency_list: Dict[any, List[any]]) -> Tuple[any]:
 
         # Count in/out degrees
         degree_counts = self.adjacencyList.count_degrees(adjacency_list)
@@ -73,7 +73,7 @@ class Eulerian:
 
         return (s, t)
 
-    def _find_start_end_from_cycle(self, cycle: List[int], s: int, t: int) -> int:
+    def _find_start_end_from_cycle(self, cycle: List[any], s: any, t: any) -> int:
 
         # Find all occurence for s and t
         s_index_list, t_index_list = np.where(np.array(cycle) == s)[
@@ -85,7 +85,7 @@ class Eulerian:
 
         return s_index
 
-    def _turn_path_into_cycle(self, adjacency_list: Dict[int, List[int]], s: int, t: int):
+    def _turn_path_into_cycle(self, adjacency_list: Dict[any, List[any]], s: any, t: any):
         """ Add an edge from t to s.
 
         """
@@ -95,7 +95,7 @@ class Eulerian:
 
         adjacency_list[t].append(s)
 
-    def find_eulerian_cycle(self, adjacency_list: Dict[int, List[int]]) -> List[int]:
+    def find_eulerian_cycle(self, adjacency_list: Dict[any, List[any]]) -> List[any]:
         """ Find the Eulerian Cycle in the graph.
             Theorem: Every balanced, strongly connected graph is Eulerian.
         Args:
@@ -140,7 +140,7 @@ class Eulerian:
 
         return eulerian_cycle
 
-    def _find_cycle(self, adjacency_list: Dict[int, List[int]], starting_node: int):
+    def _find_cycle(self, adjacency_list: Dict[any, List[any]], starting_node: any):
         """
             The graph is guaranteed to be balanced and strongly connected.
         """
@@ -191,5 +191,5 @@ class Eulerian:
         path = self.find_eulerian_path(adjacency_list)
         # print(path)
 
-        result = self.k_universal_cycle(3)
-        assert result == '0010111000' or result == '0010111000'
+        result = self.k_universal_cycle(2)
+        assert result == '11001' or result == '10011' or result == '00110' or result == '01100'

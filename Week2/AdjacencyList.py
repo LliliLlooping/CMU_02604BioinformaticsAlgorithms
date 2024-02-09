@@ -25,7 +25,7 @@ class AdjacencyList:
 
         return adjacency_list
 
-    def count_edges(self, adjacency_list: Dict[int, List[int]]) -> int:
+    def count_edges(self, adjacency_list: Dict[any, List[any]]) -> int:
 
         # Guaranteed no independent node.
 
@@ -33,7 +33,7 @@ class AdjacencyList:
 
         return num_edges
 
-    def count_degrees(self, adjacency_list: Dict[int, List[int]]) -> Dict[int, List[int]]:
+    def count_degrees(self, adjacency_list: Dict[any, List[any]]) -> Dict[any, List[int]]:
         """ Count degrees for every vertex.
         """
 
@@ -52,7 +52,7 @@ class AdjacencyList:
 
         return degree_counts
 
-    def _read_edges(self, file_path: str) -> Dict[int, List[int]]:
+    def _read_edges(self, file_path: str) -> Dict[any, List[any]]:
         """ Utility I/O function that reads from the input
         """
 
