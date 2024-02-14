@@ -10,206 +10,238 @@ class Alignment:
     def __init__(self):
         pass
     
-    def overlap_alignment(self, match: int, mismatch: int, indel: int, s1: str, s2: str):
-        score, backtrack, j = self.overlap_alignment_backtrack(match, mismatch, indel, s1, s2)
-        gapped_s1, gapped_s2 = [], []
-        self.output(backtrack, gapped_s1, gapped_s2, s1, s2, len(s1), j)
+    def alignment(self, s1: str, s2: str, match_reward: int, mismatch_penalty: int, indel_penalty: int, free_ride_before_s1=False, free_ride_after_s1=False, free_ride_before_s2=False, free_ride_after_s2=False) -> Tuple[int, str, str]:
         
-        gapped_s1, gapped_s2 = ''.join(gapped_s1[::-1]), ''.join(gapped_s2[::-1])
+        if free_ride_before_s1 == False and free_ride_after_s1 == False and free_ride_before_s2 == False and free_ride_after_s2 == False:
+            return self.global_alignment(s1, s2, match_reward, mismatch_penalty, indel_penalty)
+            
+        elif free_ride_before_s1 == False and free_ride_after_s1 == False and free_ride_before_s2 == True and free_ride_after_s2 == True:
+            return self.fitting_alignment(s2, s1, indel_penalty)
+            
+        elif free_ride_before_s1 == True and free_ride_after_s1 == True and free_ride_before_s2 == False and free_ride_after_s2 == False:
+            return self.fitting_alignment(s1, s2, indel_penalty)
+            
+        elif free_ride_before_s1 == True and free_ride_after_s1 == False and free_ride_before_s2 == False and free_ride_after_s2 == True:
+            return self.overlap_alignment(s1, s2, match_reward, mismatch_penalty, indel_penalty)
+            
+        elif free_ride_before_s1 == False and free_ride_after_s1 == True and free_ride_before_s2 == True and free_ride_after_s2 == False:
+            return self.overlap_alignment(s2, s1, match_reward, mismatch_penalty, indel_penalty)
+            
+        elif free_ride_before_s1 == True and free_ride_after_s1 == True and free_ride_before_s2 == True and free_ride_after_s2 == True:
+            return self.local_alignment(s1, s2, match_reward, mismatch_penalty, indel_penalty)
+    
+    def global_alignment(self, s1: str, s2: str, match: int, mismatch: int, indel: int) -> Tuple[int, str, str]:
+        
+        score, backtrack = self._global_alignment_backtrack(s1, s2, match, mismatch, indel)
+        
+        gapped_s1, gapped_s2 = self._output(backtrack, s1, s2, len(s1), len(s2))
+        
+        return (score, gapped_s1, gapped_s2)  
+    
+    def fitting_alignment(self, s1: str, s2: str, indel: int) -> Tuple[int, str, str]:
+        
+        score, backtrack, i = self._fitting_alignment_backtrack(s1, s2, indel)
+        
+        gapped_s1, gapped_s2 = self._output(backtrack, s1, s2, i, len(s2))
+        
+        return (score, gapped_s1, gapped_s2) 
+    
+    def overlap_alignment(self, s1: str, s2: str, match: int, mismatch: int, indel: int) -> Tuple[int, str, str]:
+        
+        score, backtrack, j = self._overlap_alignment_backtrack(s1, s2, match, mismatch, indel)
+        
+        gapped_s1, gapped_s2 = self._output(backtrack, s1, s2, len(s1), j)
         
         return (score, gapped_s1, gapped_s2)
     
-    def local_alignment(self, match: int, mismatch: int, indel: int, s1: str, s2: str):
+    def local_alignment(self, s1: str, s2: str, match: int, mismatch: int, indel: int) -> Tuple[int, str, str]:
         
-        score, backtrack, [i, j] = self.local_alignment_backtrack(match, mismatch, indel, s1, s2)
+        score, backtrack, [i, j] = self._local_alignment_backtrack(s1, s2, match, mismatch, indel)
+        
+        gapped_s1, gapped_s2 = self._output(backtrack, s1, s2, i, j)
+        
+        return (score, gapped_s1, gapped_s2) 
+    
+    def _output(self, backtrack: np.array, s1: str, s2: str, i: int, j: int)  -> Tuple[str, str]:
+        
         gapped_s1, gapped_s2 = [], []
-        self.output(backtrack, gapped_s1, gapped_s2, s1, s2, i, j)
+        
+        self._output_recur(backtrack, gapped_s1, gapped_s2, s1, s2, i, j)
         
         gapped_s1, gapped_s2 = ''.join(gapped_s1[::-1]), ''.join(gapped_s2[::-1])
         
-        return (score, gapped_s1, gapped_s2)
-    
-    def global_alignment(self, match: int, mismatch: int, indel: int, s1: str, s2: str):
+        return (gapped_s1, gapped_s2)
         
-        score, backtrack = self.global_alignment_backtrack(match, mismatch, indel, s1, s2)
-        gapped_s1, gapped_s2 = [], []
-        self.output(backtrack, gapped_s1, gapped_s2, s1, s2, len(s1), len(s2))
+    def _output_recur(self, backtrack: np.array, gapped_s1: str, gapped_s2: str, s1: str, s2: str, i: int, j: int):
         
-        gapped_s1, gapped_s2 = ''.join(gapped_s1[::-1]), ''.join(gapped_s2[::-1])
-        
-        return (score, gapped_s1, gapped_s2)
-    
-    def fitting_alignment(self, indel: int, s1: str, s2: str):
-        score, backtrack, i = self.fitting_alignment_backtrack(indel, s1, s2)
-        gapped_s1, gapped_s2 = [], []
-        self.output(backtrack, gapped_s1, gapped_s2, s1, s2, i, len(s2))
-        
-        gapped_s1, gapped_s2 = ''.join(gapped_s1[::-1]), ''.join(gapped_s2[::-1])
-        
-        return (score, gapped_s1, gapped_s2)
-    
-    def output(self, backtrack, gapped_s1, gapped_s2, s1, s2, i, j):
-        """
-            Recursively output based on an backtrack array.
-        """
         if backtrack[i, j] == 0:
             return
-        if backtrack[i, j] == 1: # horizontal
+        
+        if backtrack[i, j] == 1:   # horizontal
             gapped_s1.append('-')
             gapped_s2.append(s2[j-1])
-            self.output(backtrack, gapped_s1, gapped_s2, s1, s2, i, j - 1)
+            self._output_recur(backtrack, gapped_s1, gapped_s2, s1, s2, i, j - 1)
             return
+        
         elif backtrack[i, j] == 2: # vertical
             gapped_s1.append(s1[i-1])
             gapped_s2.append('-')
-            self.output(backtrack, gapped_s1, gapped_s2, s1, s2, i - 1, j)
+            self._output_recur(backtrack, gapped_s1, gapped_s2, s1, s2, i - 1, j)
             return
-        else: # diagonal
+        
+        else:                       # diagonal
             gapped_s1.append(s1[i-1])
             gapped_s2.append(s2[j-1])
-            self.output(backtrack, gapped_s1, gapped_s2, s1, s2, i - 1, j - 1)
+            self._output_recur(backtrack, gapped_s1, gapped_s2, s1, s2, i - 1, j - 1)
             return
-    
-    
-    def global_alignment_backtrack(self, match: int, mismatch: int, indel: int, s1: str, s2: str) -> Tuple[int, np.array]:
+        
+    def _global_alignment_backtrack(self, s1: str, s2: str, match_reward: int, mismatch_penalty: int, indel_penalty: int) -> Tuple[int, np.array]:
         
         l1, l2 = len(s1), len(s2)
         
-        score, backtrack = np.zeros((len(s1) + 1, len(s2) + 1), dtype=int), np.zeros((len(s1) + 1, len(s2) + 1), dtype=int)
-        
-        for i in range(1, l1+1):
-            score[i, 0] = -indel * i
-            backtrack[i, 0] = 2
+        score, backtrack = self._initialize_matrix(l1, l2, 'global', indel_penalty)
             
-        for j in range(1, l2+1):
-            score[0, j] = -indel * j
-            backtrack[0, j] = 1
-            
-        for i in range(1, l1+1):
-            for j in range(1, l2+1):
-                
-                if s1[i-1] == s2[j-1]:
-                    diag = score[i-1, j-1] + match
-                else:
-                    diag = score[i-1, j-1] - mismatch
-                up = score[i-1, j] - indel
-                left = score[i, j-1] - indel
-                
-                if diag == max(diag, up, left):
-                    score[i, j] = diag
-                    backtrack[i, j] = 3
-                    
-                elif left == max(diag, up, left):
-                    score[i, j] = left
-                    backtrack[i, j] = 1
-                    
-                else:
-                    score[i, j] = up
-                    backtrack[i, j] = 2
-        return score[len(s1), len(s2)], backtrack
+        self._fill_matrix(s1, s2, match_reward, mismatch_penalty, indel_penalty, score, backtrack, 'global')
         
-    def local_alignment_backtrack(self, match: int, mismatch: int, indel: int, s1: str, s2: str) -> Tuple[int, np.array]:
+        # In global alignment, the score must be located at the bottom-right corner
+        global_score = score[len(s1), len(s2)]
+        
+        return global_score, backtrack
+        
+    def _local_alignment_backtrack(self, s1: str, s2: str, match_reward: int, mismatch_penalty: int, indel_penalty: int) -> Tuple[int, np.array]:
         
         l1, l2 = len(s1), len(s2)
         
-        score, backtrack = np.zeros((len(s1) + 1, len(s2) + 1), dtype=int), np.zeros((len(s1) + 1, len(s2) + 1), dtype=int)
+        score, backtrack = self._initialize_matrix(l1, l2, 'local')
             
-        for i in range(1, l1+1):
-            for j in range(1, l2+1):
-                
-                if s1[i-1] == s2[j-1]:
-                    diag = score[i-1, j-1] + match
-                else:
-                    diag = score[i-1, j-1] - mismatch
-                up = score[i-1, j] - indel
-                left = score[i, j-1] - indel
-                
-                if 0 == max(diag, up, left, 0):
-                    score[i, j] = 0
-                    
-                elif diag == max(diag, up, left, 0):
-                    score[i, j] = diag
-                    backtrack[i, j] = 3
-                    
-                elif left == max(diag, up, left, 0):
-                    score[i, j] = left
-                    backtrack[i, j] = 1
-                    
-                else:
-                    score[i, j] = up
-                    backtrack[i, j] = 2
-                    
-        i, j = np.argmax(score) // score.shape[1], np.argmax(score) % score.shape[1]
-        return score[i, j], backtrack, [i, j]
+        self._fill_matrix(s1, s2, match_reward, mismatch_penalty, indel_penalty, score, backtrack, 'local')
+        
+        # In local alignment, the score can be located anywhere
+        local_score_index =  np.argmax(score)
+        local_score_i, local_score_j = local_score_index // score.shape[1], local_score_index % score.shape[1]
+        local_score = score[local_score_i, local_score_j]
+        
+        return local_score, backtrack, [local_score_i, local_score_j]
     
-    def fitting_alignment_backtrack(self, indel: int, s1: str, s2: str) -> Tuple[int, np.array]:
+    def _overlap_alignment_backtrack(self, s1: str, s2: str, match_reward: int, mismatch_penalty: int, indel_penalty: int) -> Tuple[int, np.array]:
         
         l1, l2 = len(s1), len(s2)
         
-        score, backtrack = np.zeros((len(s1) + 1, len(s2) + 1), dtype=int), np.zeros((len(s1) + 1, len(s2) + 1), dtype=int)
-            
-        for j in range(1, l2+1):
-            score[0, j] = -indel * j
-            backtrack[0, j] = 1
+        score, backtrack = self._initialize_matrix(l1, l2, 'overlap', indel_penalty)
         
-        for i in range(1, l1+1):
-            for j in range(1, l2+1):
-                
-                diag = score[i-1, j-1] + BLOSUM[s1[i-1]][s2[j-1]]
-                up = score[i-1, j] - indel
-                left = score[i, j-1] - indel
-                    
-                if diag == max(diag, up, left):
-                    score[i, j] = diag
-                    backtrack[i, j] = 3
-                    
-                elif left == max(diag, up, left):
-                    score[i, j] = left
-                    backtrack[i, j] = 1
-                    
-                else:
-                    score[i, j] = up
-                    backtrack[i, j] = 2
-        i = np.argmax(score[:, l2])
-        return score[i, l2], backtrack, i
+        self._fill_matrix(s1, s2, match_reward, mismatch_penalty, indel_penalty, score, backtrack, 'overlap')
+        
+        # In this setting of overlap alignment, the score must be located in the last row
+        overlap_score_j = np.argmax(score[l1, :])
+        overlap_score = score[l1, overlap_score_j]
+        
+        return overlap_score, backtrack, overlap_score_j
     
-    def overlap_alignment_backtrack(self, match, mismatch, indel: int, s1: str, s2: str) -> Tuple[int, np.array]:
+    def _fitting_alignment_backtrack(self, s1: str, s2: str, indel_penalty: int) -> Tuple[int, np.array]:
         
         l1, l2 = len(s1), len(s2)
         
-        score, backtrack = np.zeros((len(s1) + 1, len(s2) + 1), dtype=int), np.zeros((len(s1) + 1, len(s2) + 1), dtype=int)
-            
-        for j in range(1, l2+1):
-            score[0, j] = -indel * j
-            backtrack[0, j] = 1
+        score, backtrack = self._initialize_matrix(l1, l2, 'fitting', indel_penalty)
         
-        for i in range(1, l1+1):
-            for j in range(1, l2+1):
-                
-                if s1[i-1] == s2[j-1]:
-                    diag = score[i-1, j-1] + match
-                else:
-                    diag = score[i-1, j-1] - mismatch
-                up = score[i-1, j] - indel
-                left = score[i, j-1] - indel
-                    
-                if diag == max(diag, up, left):
-                    score[i, j] = diag
-                    backtrack[i, j] = 3
-                    
-                elif left == max(diag, up, left):
-                    score[i, j] = left
-                    backtrack[i, j] = 1
-                    
-                else:
-                    score[i, j] = up
-                    backtrack[i, j] = 2
-        j = np.argmax(score[l1, :])
-        return score[l1, j], backtrack, j
+        self._fill_matrix(s1, s2, 0, 0, indel_penalty, score, backtrack, 'fitting')
+        
+        # In this setting of fitting alignment, the score must be located in the last column
+        alignment_score_i = np.argmax(score[:, l2])
+        alignment_score = score[alignment_score_i, l2]
+        
+        return alignment_score, backtrack, alignment_score_i
     
-    def test(self):
-        match, mismatch, indel = 1, 1, 2
-        s1 = 'GAGA'
-        s2 = 'GAT'
-        score, gapped_s1, gapped_s2 = self.overlap_alignment(match, mismatch, indel, s1, s2)
-        print(score, gapped_s1, gapped_s2)
+    def _initialize_matrix(self, l1: int, l2: int, mode: str, indel_penalty = 0):
+        
+        score, backtrack = np.zeros((l1 + 1, l2 + 1), dtype=int), np.zeros((l1 + 1, l2 + 1), dtype=int)
+        
+        if mode == 'local':
+            pass
+        
+        else:
+            assert indel_penalty > 0
+            
+            if mode == 'global':
+                # Do not allow free ride anywhere
+                
+                for i in range(1, l1 + 1):
+                    score[i, 0] = -indel_penalty * i
+                    backtrack[i, 0] = 2 # vertical
+                
+                for j in range(1, l2 + 1):
+                    score[0, j] = -indel_penalty * j
+                    backtrack[0, j] = 1 # horizontal
+            
+            elif mode == 'overlap' or mode == 'fitting':
+                # Allow free ride in the first row
+                # meaning it's allowed to delete the prefix of s1 for free
+                
+                for j in range(1, l2 + 1):
+                    score[0, j] = -indel_penalty * j
+                    backtrack[0, j] = 1 # horizontal
+            else:
+                
+                ValueError("Wrong mode.")
+        
+        return score, backtrack
+    
+    def _fill_matrix(self, s1, s2, match_reward, mismatch_penalty, indel_penalty, score, backtrack, mode):
+        
+        m, n = score.shape
+        
+        for i in range(1, m):
+            for j in range(1, n):
+                
+                up = score[i-1, j] - indel_penalty
+                
+                left = score[i, j-1] - indel_penalty
+                
+                if mode == 'fitting':
+                    diag = score[i-1, j-1] + BLOSUM[s1[i-1]][s2[j-1]]
+                else:
+                    if s1[i-1] == s2[j-1]:
+                        diag = score[i-1, j-1] + match_reward
+                    else:
+                        diag = score[i-1, j-1] - mismatch_penalty
+                
+                if mode != 'local':
+                    if diag == max(diag, up, left):
+                        score[i, j] = diag
+                        backtrack[i, j] = 3
+                        
+                    elif left == max(diag, up, left): # horizontal
+                        score[i, j] = left
+                        backtrack[i, j] = 1
+                        
+                    else:                        # vertical
+                        score[i, j] = up
+                        backtrack[i, j] = 2
+                else:
+                    if 0 == max(diag, up, left, 0):
+                        score[i, j] = 0
+                        backtrack[i, j] = 0
+                        
+                    elif diag == max(diag, up, left, 0):
+                        score[i, j] = diag
+                        backtrack[i, j] = 3
+                        
+                    elif left == max(diag, up, left, 0): # horizontal
+                        score[i, j] = left
+                        backtrack[i, j] = 1
+                        
+                    else:                        # vertical
+                        score[i, j] = up
+                        backtrack[i, j] = 2
+                    
+        return
+    
+    # def test(self):
+    #     match_reward, mismatch_penalty, indel_penalty = 3, 2, 1
+        
+    #     s = 'CAGAGATGGCCG'
+        
+    #     t = 'ACG'
+        
+    #     score, gapped_s1, gapped_s2 = self.alignment(s, t, match_reward, mismatch_penalty, indel_penalty, True, True, True, True)
+        
+    #     print(score, gapped_s1, gapped_s2)
