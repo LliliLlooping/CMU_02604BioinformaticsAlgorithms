@@ -249,11 +249,13 @@ class ProfileHMMConstructing:
     def test(self):
         pass
 
-        threshold = 0.304
-        delta = 0.01
-        alphabets = ['A', 'B', 'C', 'D', 'E']
+        threshold = 1.0
+        delta = 0.0
         with open('alignments.txt', 'r') as file:
             alignments = file.read().split('\n')
+        alphabets = sorted(
+            set([alphabet for alignment in alignments for alphabet in alignment]))
+        alphabets.remove('-')
 
         states_list, transition_matrix, emission_matrix = self.construct_profile_hmm(
             threshold, alphabets, alignments, delta)

@@ -147,22 +147,64 @@ class HMM:
         #     string, path, emission_prob)
         # print(conditional_prob)
 
-        # string = 'xxzzyxxyyzzzxzyxzyzyyzyzxxzzxyzzxxxzxyxyyzyzzyzzxxxzxzxyyyzyzyyzzyzzxxzyyxzyyyzzyzxyzxyzyyyxyxyzyyzx'
-        # emission_prob = {
-        #     'A': {'x': 0.34,
-        #           'y': 0.502,
-        #           'z': 0.158},
-        #     'B': {'x': 0.457,
-        #           'y': 0.5,
-        #           'z': 0.043},
-        # }
-        # transition_prob = {
-        #     'A': {'A': 0.327,
-        #           'B': 0.673},
-        #     'B': {'A': 0.428,
-        #           'B': 0.572
-        #           }
-        # }
-        # hidden_states = self.decoding(
-        #     string, emission_prob, transition_prob)
-        # print(hidden_states)
+        string = '712666'
+        emission_prob = {
+            'S': {'1': 0.0,
+                  '2': 0.0,
+                  '3': 0.0,
+                  '4': 0.0,
+                  '5': 0.0,
+                  '6': 0.0,
+                  '7': 1},
+            'F': {'1': 1/6,
+                  '2': 1/6,
+                  '3': 1/6,
+                  '4': 1/6,
+                  '5': 1/6,
+                  '6': 1/6,
+                  '7': 0},
+            'H': {'1': 1/12,
+                  '2': 1/12,
+                  '3': 1/12,
+                  '4': 1/12,
+                  '5': 1/3,
+                  '6': 1/3,
+                  '7': 0},
+            'L': {'1': 1/3,
+                  '2': 1/3,
+                  '3': 1/12,
+                  '4': 1/12,
+                  '5': 1/12,
+                  '6': 1/12,
+                  '7': 0}
+
+        }
+        transition_prob = {
+            'F': {
+                'F': 0.4,
+                'H': 0.1,
+                'L': 0.5,
+                'S': 0
+            },
+            'H': {
+                'F': 0.2,
+                'H': 0.6,
+                'L': 0.2,
+                'S': 0
+            },
+            'L': {
+                'F': 1.0,
+                'H': 0.0,
+                'L': 0.0,
+                'S': 0
+            },
+            'S': {
+                'F': 1.0,
+                'H': 0.0,
+                'L': 0.0,
+                'S': 0.0
+            }
+        }
+        hidden_states = self.decoding(
+            string, emission_prob, transition_prob)
+        print(hidden_states)
