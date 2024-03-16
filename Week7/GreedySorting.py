@@ -43,8 +43,7 @@ class GreedySorting:
         s = s[:-1]
         print(s)
         
-        
-        
+           
     def test(self):
         with open('input.txt', 'r') as file:
             permutation = [int(x) for x in file.read().split(' ')]
