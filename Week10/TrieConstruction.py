@@ -1,4 +1,5 @@
 from typing import List, Tuple, Dict
+from util import dictionary_to_trie
 
 def trie_construction(patterns: List[str]) -> List[Tuple[int, int, str]]:
     
@@ -45,13 +46,6 @@ def trie_construction(patterns: List[str]) -> List[Tuple[int, int, str]]:
         next_new_node_ = add_pattern_to_trie_recur(pattern_, trie_dictionary_, next_new_node_, current_node_)
 
         return next_new_node_
-
-    def dictionary_to_trie(trie_dictionary_: Dict[int, Dict[int, str]]) -> None:
-        trie_ = []
-        for ori_, ori_dic_ in trie_dictionary_.items():
-            for des_, char_ in ori_dic_.items():
-                trie_.append((ori_, des_, char_))
-        return trie_
     
     # initialize trie_dictionary with an empty dictionary
     trie_dictionary = {}
@@ -68,3 +62,53 @@ def trie_construction(patterns: List[str]) -> List[Tuple[int, int, str]]:
     trie = dictionary_to_trie(trie_dictionary)
 
     return trie
+
+
+def modified_trie_construction(text: str) -> Dict[int, Dict[int, Tuple[str, int]]]:
+
+    def add_suffix_to_trie(text_: str, offset_: int, trie_dictionary_: Dict[int, Dict[int, str]], next_new_node_: int) -> None:
+        def exists_edge(dic: Dict[int, Dict[int, str]], node: int, char: str):
+                # checks if exists an edge labeled by char from node
+                # return the destination of this edge if exists; otherwise -1
+                if node not in dic:
+                    return -1
+                for k, v in dic[node].items():
+                    if v[0] == char:
+                        return k
+                return -1
+        
+        def adds_edge(dic: Dict[int, Dict[int, str]], edge: Tuple[int, int, str, int]) -> None:
+                # adds a new edge
+                ori, des, weight, idx = edge
+                if ori not in dic:
+                    dic[ori] = {}
+                dic[ori][des] = (weight, idx)
+        
+        suffix_ = text_[offset_:]
+        current_node_ = 0
+        for i_ in range(len(suffix_)):
+            destination = exists_edge(trie_dictionary_, current_node_, suffix_[i_])
+            if destination != -1:
+                adds_edge(trie_dictionary_, (current_node_, destination, suffix_[i_], offset_ + i_))
+                current_node_ = destination
+            else:
+                adds_edge(trie_dictionary_, (current_node_, next_new_node_, suffix_[i_], offset_ + i_))
+                current_node_ = next_new_node_
+                next_new_node_ += 1
+
+        return next_new_node_
+
+    
+    # initialize trie_dictionary with an empty dictionary
+    trie_dictionary = {}
+
+    # initialize next_new_node with 0
+    next_new_node = 1
+
+    for offset in reversed(range(len(text))):
+
+        # adds one suffix
+        # updates next_new_node because next suffix still needs it
+        next_new_node = add_suffix_to_trie(text, offset, trie_dictionary, next_new_node)
+
+    return trie_dictionary
