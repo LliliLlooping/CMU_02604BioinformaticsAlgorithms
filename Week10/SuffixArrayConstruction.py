@@ -15,6 +15,6 @@ def suffix_array_construction(text: str) -> List[int]:
     pairs.sort(key=lambda x: x[1])
 
     # gets the sorted starting position
-    arr = map(lambda x: x[0], pairs)
+    arr = list(map(lambda x: x[0], pairs))
 
     return arr

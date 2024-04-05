@@ -10,7 +10,7 @@ def find_longest_repeated_substring(text1: str, text2: str) -> List[str]:
                 starts_, length_ = tp_
 
                 if length_ > len(text2_):
-                    text1_substring_ = text1[starts_:starts_+len(text2_)]
+                    text1_substring_ = text1_[starts_:starts_+len(text2_)]
                     text2_substring_ = text2_
                     for i in reversed(range(1, len(text2_)+1)):
                         if text2_substring_[:i] == text1_substring_[:i]:
@@ -18,7 +18,7 @@ def find_longest_repeated_substring(text1: str, text2: str) -> List[str]:
                             return
 
                 else:
-                    text1_substring_ = text1[starts_:starts_+length_]
+                    text1_substring_ = text1_[starts_:starts_+length_]
                     text2_substring_ = text2_[:length_]
                     for i in reversed(range(1, length_+1)):
                         if text2_substring_[:i] == text1_substring_[:i]:
